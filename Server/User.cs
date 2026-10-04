@@ -14,9 +14,8 @@ namespace Server
 
         public override string ToString()
         {
-            string status = !IsApproved ? $"Awaiting approval" :(IsBanned && Ban > DateTime.UtcNow) ? $"Banned until {Ban:HH:mm}":"Active";
-
-            return $"{Name}: {status}";
+            string result = !IsApproved ? $"Awaiting approval" :(IsBanned && Ban > DateTime.UtcNow) ? $"Banned until {Ban:HH:mm}":"Active";
+            return $"{Name}: {result}";
         }
     }
 }
