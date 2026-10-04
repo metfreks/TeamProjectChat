@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "SqlClient": "Server=localhost; Database=ServerChatDB; Trusted_Connection=true; TrustServerCertificate=true"
+  }
+}
