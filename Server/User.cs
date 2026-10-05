@@ -8,6 +8,7 @@ namespace Server
     {
         public int Id { get; set; }
         public string? Name { get; set; }
+        public string? Password { get; set; }
         public bool IsApproved { get; set; }
         public bool IsBanned { get; set; }
         public DateTime? Ban { get; set; }
