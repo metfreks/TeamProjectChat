@@ -154,9 +154,7 @@ namespace Server
             {
                 onlineUsers = _connectedClients.Keys.ToList();
             }
-
             string command = "USERS|" + string.Join(",", onlineUsers);
-
             List<TcpClient> clients;
             lock (_connectedClients)
             {
@@ -262,6 +260,52 @@ namespace Server
                         break;
                 }
             }
+        }
+
+        public async Task ApproveUser(int userId)
+        {
+            using (var db = new ServerDBContext())
+            {
+                var user = await db.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    user.IsApproved = true;
+                    Log?.Invoke($"User approved - {user.Name}.");
+                    await db.SaveChangesAsync();
+                }
+            }
+            await RefreshUsersList();
+        }
+
+        public async Task BanUser(int userId, int minutes = 60)
+        {
+            using (var db = new ServerDBContext())
+            {
+                var user = await db.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    user.IsBanned = true;
+                    user.Ban = DateTime.Now.AddMinutes(minutes);
+                    await db.SaveChangesAsync();
+                    Log?.Invoke($"User {user.Name} is banned for {minutes}.");
+                }
+            }
+            await RefreshUsersList();
+        }
+
+        public async Task DeleteUser(int userId)
+        {
+            using (var db = new ServerDBContext())
+            {
+                var user = await db.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    db.Users.Remove(user);
+                    await db.SaveChangesAsync();
+                    Log?.Invoke($"Removed user {user.Name}.");
+                }
+            }
+            await RefreshUsersList();
         }
 
     }
