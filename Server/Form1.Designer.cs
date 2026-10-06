@@ -39,6 +39,8 @@
             tbLog = new TextBox();
             label2 = new Label();
             deleteBtn = new Button();
+            tbBan = new TextBox();
+            refreshBtn = new Button();
             SuspendLayout();
             // 
             // startBtn
@@ -54,8 +56,9 @@
             // 
             // banBtn
             // 
+            banBtn.Enabled = false;
             banBtn.Font = new Font("Segoe UI", 12F);
-            banBtn.Location = new Point(253, 307);
+            banBtn.Location = new Point(253, 330);
             banBtn.Name = "banBtn";
             banBtn.Size = new Size(113, 52);
             banBtn.TabIndex = 1;
@@ -65,6 +68,7 @@
             // 
             // stopBtn
             // 
+            stopBtn.Enabled = false;
             stopBtn.Font = new Font("Segoe UI", 16F);
             stopBtn.Location = new Point(502, 12);
             stopBtn.Name = "stopBtn";
@@ -102,8 +106,9 @@
             // 
             // approveBtn
             // 
+            approveBtn.Enabled = false;
             approveBtn.Font = new Font("Segoe UI", 12F);
-            approveBtn.Location = new Point(49, 307);
+            approveBtn.Location = new Point(49, 330);
             approveBtn.Name = "approveBtn";
             approveBtn.Size = new Size(96, 52);
             approveBtn.TabIndex = 6;
@@ -133,7 +138,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 16F);
-            label2.Location = new Point(423, 312);
+            label2.Location = new Point(423, 318);
             label2.Name = "label2";
             label2.Size = new Size(270, 37);
             label2.TabIndex = 10;
@@ -141,8 +146,9 @@
             // 
             // deleteBtn
             // 
+            deleteBtn.Enabled = false;
             deleteBtn.Font = new Font("Segoe UI", 12F);
-            deleteBtn.Location = new Point(151, 307);
+            deleteBtn.Location = new Point(151, 330);
             deleteBtn.Name = "deleteBtn";
             deleteBtn.Size = new Size(96, 52);
             deleteBtn.TabIndex = 11;
@@ -150,11 +156,30 @@
             deleteBtn.UseVisualStyleBackColor = true;
             deleteBtn.Click += deleteBtn_Click;
             // 
+            // tbBan
+            // 
+            tbBan.Location = new Point(50, 297);
+            tbBan.Name = "tbBan";
+            tbBan.Size = new Size(316, 27);
+            tbBan.TabIndex = 12;
+            // 
+            // refreshBtn
+            // 
+            refreshBtn.Location = new Point(21, 187);
+            refreshBtn.Name = "refreshBtn";
+            refreshBtn.Size = new Size(23, 27);
+            refreshBtn.TabIndex = 13;
+            refreshBtn.Text = "R";
+            refreshBtn.UseVisualStyleBackColor = true;
+            refreshBtn.Click += refreshBtn_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 385);
+            ClientSize = new Size(800, 392);
+            Controls.Add(refreshBtn);
+            Controls.Add(tbBan);
             Controls.Add(deleteBtn);
             Controls.Add(label2);
             Controls.Add(tbLog);
@@ -185,5 +210,7 @@
         private TextBox tbLog;
         private Label label2;
         private Button deleteBtn;
+        private TextBox tbBan;
+        private Button refreshBtn;
     }
 }
