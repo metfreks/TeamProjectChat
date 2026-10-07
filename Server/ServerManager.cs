@@ -12,9 +12,9 @@ namespace Server
         private TcpListener? _listener;
         private bool _isRunning;
         private readonly Dictionary<string, TcpClient> _connectedClients = new();
-        public event Action<List<User>> UsersUpdated;
-        public event Action<string> StatusChanged;
-        public event Action<string> Log;
+        public event Action<List<User>>? UsersUpdated;
+        public event Action<string>? StatusChanged;
+        public event Action<string>? Log;
 
         public async Task StartServer(int port = 3456)
         {
@@ -65,9 +65,9 @@ namespace Server
                     var client = await _listener!.AcceptTcpClientAsync();
                     _ = HandleClientAsync(client);
                 }
-                catch 
-                { 
-                    break; 
+                catch
+                {
+                    break;
                 }
             }
         }
@@ -76,12 +76,13 @@ namespace Server
         {
             try
             {
-                var sw = new StreamWriter(client.GetStream(), Encoding.UTF8);
+                var sw = new StreamWriter(client.GetStream());
+                sw.AutoFlush = true;
                 await sw.WriteLineAsync(message);
             }
-            catch 
-            { 
-            
+            catch
+            {
+
             }
         }
 
@@ -99,7 +100,10 @@ namespace Server
                     var recipients = recipientsStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var recipient in recipients)
                     {
-                        if (_connectedClients.TryGetValue(recipient, out var c)) targets.Add(c);
+                        if (_connectedClients.TryGetValue(recipient, out var c))
+                        {
+                            targets.Add(c);
+                        }
                     }
                     if (_connectedClients.TryGetValue(sender, out var senderClient) && !targets.Contains(senderClient))
                     {
@@ -130,9 +134,9 @@ namespace Server
                     }
                     await ProcessReq(raw, client, user, name => user = name);
                 }
-                catch 
-                { 
-                    break; 
+                catch
+                {
+                    break;
                 }
             }
 
@@ -172,6 +176,13 @@ namespace Server
             using (var db = new ServerDBContext())
             {
                 var users = await db.Users.Select(u => new User { Id = u.Id, Name = u.Name, IsApproved = u.IsApproved, IsBanned = u.IsBanned, Ban = u.Ban }).ToListAsync();
+                foreach (var u in users)
+                {
+                    if (u.IsBanned && u.Ban < DateTime.Now)
+                    {
+                        u.IsBanned = false;
+                    }
+                }
                 UsersUpdated?.Invoke(users);
             }
         }
@@ -241,6 +252,12 @@ namespace Server
                         string sender = parts[1];
                         string recipientsStr = parts[2];
                         string text = parts[3];
+                        var userBan = await db.Users.FirstOrDefaultAsync(u => u.Name == sender);
+                        if (userBan!.IsBanned && userBan.Ban > DateTime.Now)
+                        {
+                            await SendMessageAsync(client, $"ERROR|You are banned until: {userBan.Ban}");
+                            break;
+                        }
 
                         db.Messages.Add(new MSG { User = sender, Text = text, Recipients = string.IsNullOrEmpty(recipientsStr) ? "ALL" : recipientsStr });
                         await db.SaveChangesAsync();
