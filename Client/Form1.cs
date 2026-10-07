@@ -1,86 +1,44 @@
 namespace Client
 {
-    public partial class Form1 : Form
+    public partial class Client : Form
     {
         private readonly ClientNetwork _network;
 
-        private string _currentUser = "";
-
-        public Form1()
+        public Client()
         {
             InitializeComponent();
-
-            _network = new ClientNetwork();
-            _network.MessageReceived += Network_MessageReceived;
-
-            tbIp.Text = "127.0.0.1";
-            tbPort.Text = "3456";
-
+            _network = new();
+            _network.TextReceived += Network_TextReceived;
+            _network.ConnectionChanged += Network_ConnectionChange;
+            _network.SystemMSG += Network_SystemMessage;
+            _network.ErrorMSG += Network_ErrMessage;
+            _network.FileReceived += Network_FileHandler;
+            _network.UsersUpdated += Network_UsersUpdate;
             tbPassword.PasswordChar = '*';
 
-            lbUsers.SelectionMode =
-                SelectionMode.MultiExtended;
         }
 
-        private async void loginBtn_Click(
-            object sender,
-            EventArgs e)
+        private async void loginBtn_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
             {
                 return;
             }
-
-            try
-            {
-                await ConnectToServer();
-
-                string message =
-                    $"LOGIN|{tbLogin.Text}|{tbPassword.Text}";
-
-                await _network.SendAsync(message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    ex.Message,
-                    "Connection Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
+            await _network.Login(tbLogin.Text, tbPassword.Text);
         }
 
-        private async void registerBtn_Click(
-            object sender,
-            EventArgs e)
+        private async void registerBtn_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
             {
                 return;
             }
-
-            try
-            {
-                await ConnectToServer();
-
-                string message =
-                    $"REGISTER|{tbLogin.Text}|{tbPassword.Text}";
-
-                await _network.SendAsync(message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    ex.Message,
-                    "Connection Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
+            await _network.Register(tbLogin.Text, tbPassword.Text);
         }
 
         private bool ValidateInput()
         {
-            if (string.IsNullOrWhiteSpace(tbIp.Text))
+            if (string.IsNullOrWhiteSpace(tbIP.Text))
             {
                 MessageBox.Show("Enter server IP.");
                 return false;
@@ -109,243 +67,99 @@ namespace Client
                 MessageBox.Show("Enter password.");
                 return false;
             }
-
             return true;
         }
 
-        private async Task ConnectToServer()
-        {
-            if (_network.IsConnected)
-            {
-                return;
-            }
-
-            int port = int.Parse(tbPort.Text);
-
-            await _network.ConnectAsync(
-                tbIp.Text,
-                port);
-        }
-
-        private void Network_MessageReceived(
-            string message)
+        private void Network_TextReceived(string sender, string recipients, string msg)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() =>
-                    Network_MessageReceived(message)));
-
+                Invoke(new Action(() => Network_TextReceived(sender, recipients, msg)));
                 return;
             }
-
-            ProcessServerMessage(message);
+            var status = (string.IsNullOrEmpty(recipients) || recipients == "ALL") ? "PUBLIC: " : "PRIVATE: ";
+            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} {status}{sender}: {msg}");
         }
 
-        private void ProcessServerMessage(
-            string message)
+        private void Network_SystemMessage(string msg)
         {
-            string[] parts = message.Split('|');
-
-            if (parts.Length == 0)
+            if (InvokeRequired)
             {
+                Invoke(new Action(() => Network_SystemMessage(msg)));
                 return;
             }
-
-            switch (parts[0])
-            {
-                case "SYSTEM":
-                    ProcessSystemMessage(parts);
-                    break;
-
-                case "ERROR":
-                    ProcessErrorMessage(parts);
-                    break;
-
-                case "USERS":
-                    ProcessUsersMessage(parts);
-                    break;
-
-                case "MSG":
-                    ProcessChatMessage(parts);
-                    break;
-
-                case "FILE":
-                    ProcessFileMessage(parts);
-                    break;
-            }
+            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} SYSTEM: {msg}\n");
         }
 
-        private void ProcessSystemMessage(
-            string[] parts)
+        private void Network_ErrMessage(string msg)
         {
-            if (parts.Length < 2)
+            if (InvokeRequired)
             {
+                Invoke(new Action(() => Network_ErrMessage(msg)));
                 return;
             }
+            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} ERROR: {msg}\n");
+            MessageBox.Show(msg);
+        }
 
-            string message = parts[1];
-
-            if (message == "Login successful.")
+        private void Network_FileHandler(string sender, string file, byte[] bytes)
+        {
+            if (InvokeRequired)
             {
-                _currentUser = tbLogin.Text;
-
-                loginBtn.Enabled = false;
-                registerBtn.Enabled = false;
-
-                tbIp.Enabled = false;
-                tbPort.Enabled = false;
-                tbLogin.Enabled = false;
-                tbPassword.Enabled = false;
-
-                AddChatMessage(
-                    "SYSTEM: Login successful.");
+                Invoke(new Action(() => Network_FileHandler(sender, file, bytes)));
+                return;
             }
-            else
+            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} {sender} sent the file - {file}");
+            var res = MessageBox.Show($"Received {file} from {sender}. Save it to your disk?", "File alert", MessageBoxButtons.YesNo);
+            if (res == DialogResult.Yes)
             {
-                AddChatMessage(
-                    $"SYSTEM: {message}");
+                saveFileDialog.FileName = file;
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    File.WriteAllBytes(saveFileDialog.FileName, bytes);
+                    MessageBox.Show("File saved.");
+                }
             }
         }
 
-        private void ProcessErrorMessage(
-            string[] parts)
+        private void Network_UsersUpdate(List<string> users)
         {
-            if (parts.Length < 2)
+            if (InvokeRequired)
             {
+                Invoke(new Action(() => Network_UsersUpdate(users)));
                 return;
             }
-
-            MessageBox.Show(
-                parts[1],
-                "Error",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error);
-        }
-
-        private void ProcessUsersMessage(
-            string[] parts)
-        {
             lbUsers.Items.Clear();
-
-            if (parts.Length < 2)
+            foreach (var u in users)
             {
-                return;
-            }
-
-            string[] users =
-                parts[1].Split(
-                    ',',
-                    StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (string user in users)
-            {
-                if (user != _currentUser)
+                if (u != _network.Name)
                 {
-                    lbUsers.Items.Add(user);
+                    lbUsers.Items.Add(u);
                 }
             }
+
         }
 
-        private void ProcessChatMessage(
-            string[] parts)
+        private void Network_ConnectionChange(bool check)
         {
-            if (parts.Length < 4)
+            //Work in progress.
+        }
+
+
+        private async void btnSend_Click(object sender, EventArgs e)
+        {
+            if (_network.IsConnected == false)
             {
                 return;
             }
-
-            string sender = parts[1];
-            string text = parts[3];
-
-            AddChatMessage(
-                $"{sender}: {text}");
-        }
-
-        private void ProcessFileMessage(
-            string[] parts)
-        {
-            if (parts.Length < 5)
-            {
-                return;
-            }
-
-            string sender = parts[1];
-            string fileName = parts[3];
-            string base64 = parts[4];
-
-            try
-            {
-                byte[] fileData =
-                    Convert.FromBase64String(base64);
-
-                saveFileDialog.FileName = fileName;
-
-                if (saveFileDialog.ShowDialog() ==
-                    DialogResult.OK)
-                {
-                    File.WriteAllBytes(
-                        saveFileDialog.FileName,
-                        fileData);
-
-                    AddChatMessage(
-                        $"{sender} sent file: {fileName}");
-                }
-            }
-            catch
-            {
-                MessageBox.Show(
-                    "Failed to receive file.",
-                    "File Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-        }
-
-        private void AddChatMessage(
-            string message)
-        {
-            lbChat.Items.Add(message);
-
-            if (lbChat.Items.Count > 0)
-            {
-                lbChat.TopIndex =
-                    lbChat.Items.Count - 1;
-            }
-        }
-
-        private async void btnSend_Click(
-            object sender,
-            EventArgs e)
-        {
-            if (!_network.IsConnected)
-            {
-                MessageBox.Show(
-                    "Not connected to the server.");
-
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(tbMsg.Text))
-            {
-                return;
-            }
-
+            var recipient = GetSelectedRecipients();
             if (tbMsg.Text.Contains('|'))
             {
-                MessageBox.Show(
-                    "The | character cannot be used.");
-
+                MessageBox.Show("The | character cannot be used.");
                 return;
             }
-
-            string recipients =
-                GetSelectedRecipients();
-
-            string message =
-                $"MSG|{_currentUser}|{recipients}|{tbMsg.Text}";
-
-            await _network.SendAsync(message);
-
+            string text = tbMsg.Text;
+            await _network.SendTextAsync(recipient, text);
             tbMsg.Clear();
         }
 
@@ -366,63 +180,51 @@ namespace Client
             return string.Join(",", recipients);
         }
 
-        private async void btnFileSend_Click(
-            object sender,
-            EventArgs e)
+        private async void btnFileSend_Click(object sender, EventArgs e)
         {
             if (!_network.IsConnected)
             {
-                MessageBox.Show(
-                    "Not connected to the server.");
-
+                MessageBox.Show("Not connected to the server.");
                 return;
             }
-
-            if (openFileDialog.ShowDialog() !=
-                DialogResult.OK)
+            if (openFileDialog.ShowDialog() != DialogResult.OK)
             {
                 return;
             }
-
             try
             {
-                string fileName =
-                    Path.GetFileName(
-                        openFileDialog.FileName);
-
-                byte[] fileData =
-                    await File.ReadAllBytesAsync(
-                        openFileDialog.FileName);
-
-                string base64 =
-                    Convert.ToBase64String(fileData);
-
-                string recipients =
-                    GetSelectedRecipients();
-
-                string message =
-                    $"FILE|{_currentUser}|{recipients}|{fileName}|{base64}";
-
-                await _network.SendAsync(message);
-
-                AddChatMessage(
-                    $"You sent file: {fileName}");
+                string recipient = GetSelectedRecipients();
+                await _network.SendFile(recipient, openFileDialog.FileName);
+                rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} You sent the file: {Path.GetFileName(openFileDialog.FileName)}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    ex.Message,
-                    "File Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"{ex.Message}", "File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void Form1_FormClosing(
-            object sender,
-            FormClosingEventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             _network.Disconnect();
         }
+
+        private async void connectBtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                await _network.ConnectAsync(tbIP.Text, int.Parse(tbPort.Text));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void disconnectBtn_Click(object sender, EventArgs e)
+        {
+            _network.Disconnect();
+
+        }
+
     }
 }
