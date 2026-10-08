@@ -76,15 +76,15 @@ namespace Client
             return true;
         }
 
-        private void Network_TextReceived(string sender, string recipients, string msg)
+        private void Network_TextReceived(string sender, string recipients, string msg, DateTime time)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => Network_TextReceived(sender, recipients, msg)));
+                Invoke(new Action(() => Network_TextReceived(sender, recipients, msg, time)));
                 return;
             }
             var status = (string.IsNullOrEmpty(recipients) || recipients == "ALL") ? "PUBLIC: " : "PRIVATE: ";
-            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} {status}{sender}: {msg}");
+            rtbChat.AppendText($"{Environment.NewLine}{time.ToShortTimeString()} {status}{sender}: {msg}");
             rtbChat.ScrollToCaret();
         }
 
