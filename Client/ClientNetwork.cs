@@ -164,6 +164,21 @@ namespace Client
                         FileReceived?.Invoke(parts[1], parts[3], bytes);
                     }
                     break;
+                case "HISTORY_MSG":
+                    if (parts.Length >= 4)
+                    {
+                        TextReceived?.Invoke(parts[1], parts[2], parts[3]);
+                    }
+                    break;
+
+                case "HISTORY_FILE":
+                    if (parts.Length >= 5)
+                    {
+                        string sender = parts[1];
+                        string fileName = parts[3];
+                        SystemMSG?.Invoke($"{sender} send the file {fileName}");
+                    }
+                    break;
             }
         }
 
