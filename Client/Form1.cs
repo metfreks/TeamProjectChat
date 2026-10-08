@@ -28,6 +28,11 @@ namespace Client
                 return;
             }
             rtbChat.Text = "";
+            if (tbLogin.Text.Contains('|') || tbPassword.Text.Contains('|'))
+            {
+                MessageBox.Show("The | character cannot be used.");
+                return;
+            }
             await _network.Login(tbLogin.Text, tbPassword.Text);
             btnSend.Enabled = true;
             btnFileSend.Enabled = true;
@@ -37,6 +42,11 @@ namespace Client
         {
             if (!ValidateInput())
             {
+                return;
+            }
+            if (tbLogin.Text.Contains('|') || tbPassword.Text.Contains('|'))
+            {
+                MessageBox.Show("The | character cannot be used.");
                 return;
             }
             await _network.Register(tbLogin.Text, tbPassword.Text);

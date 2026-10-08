@@ -312,7 +312,7 @@ namespace Server
                     user.IsBanned = true;
                     user.Ban = DateTime.Now.AddMinutes(minutes);
                     await db.SaveChangesAsync();
-                    Log?.Invoke($"User {user.Name} is banned for {minutes}.");
+                    Log?.Invoke($"User {user.Name} is banned for {minutes} minutes.");
                 }
             }
             await RefreshUsersList();
