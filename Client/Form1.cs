@@ -1,3 +1,4 @@
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Client
@@ -26,7 +27,10 @@ namespace Client
             {
                 return;
             }
+            rtbChat.Text = "";
             await _network.Login(tbLogin.Text, tbPassword.Text);
+            btnSend.Enabled = true;
+            btnFileSend.Enabled = true;
         }
 
         private async void registerBtn_Click(object sender, EventArgs e)
@@ -81,6 +85,7 @@ namespace Client
             }
             var status = (string.IsNullOrEmpty(recipients) || recipients == "ALL") ? "PUBLIC: " : "PRIVATE: ";
             rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} {status}{sender}: {msg}");
+            rtbChat.ScrollToCaret();
         }
 
         private void Network_SystemMessage(string msg)
@@ -90,7 +95,8 @@ namespace Client
                 Invoke(new Action(() => Network_SystemMessage(msg)));
                 return;
             }
-            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} SYSTEM: {msg}\n");
+            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} SYSTEM: {msg}");
+            rtbChat.ScrollToCaret();
         }
 
         private void Network_ErrMessage(string msg)
@@ -100,7 +106,8 @@ namespace Client
                 Invoke(new Action(() => Network_ErrMessage(msg)));
                 return;
             }
-            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} ERROR: {msg}\n");
+            rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} ERROR: {msg}");
+            rtbChat.ScrollToCaret();
             MessageBox.Show(msg);
         }
 
@@ -112,6 +119,7 @@ namespace Client
                 return;
             }
             rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} {sender} sent the file - {file}");
+            rtbChat.ScrollToCaret();
             if (sender == _network.Name)
             {
                 return;
@@ -149,7 +157,31 @@ namespace Client
 
         private void Network_ConnectionChange(bool check)
         {
-            //Work in progress.
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => Network_ConnectionChange(check)));
+                return;
+            }
+            if (check)
+            {
+                disconnectBtn.Enabled = true;
+                loginBtn.Enabled = true;
+                registerBtn.Enabled = true;
+                connectBtn.Enabled = false;
+                tbIP.Enabled = false;
+                tbPort.Enabled = false;
+                tbMsg.Enabled = true;
+            }
+            else
+            {
+                disconnectBtn.Enabled = false;
+                loginBtn.Enabled = false;
+                registerBtn.Enabled = false;
+                connectBtn.Enabled = true;
+                tbIP.Enabled = true;
+                tbPort.Enabled = true;
+                tbMsg.Enabled = false;
+            }
         }
 
 
@@ -207,6 +239,7 @@ namespace Client
                 string recipient = GetSelectedRecipients();
                 await _network.SendFile(recipient, openFileDialog.FileName);
                 rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} You sent the file: {Path.GetFileName(openFileDialog.FileName)}");
+                rtbChat.ScrollToCaret();
             }
             catch (Exception ex)
             {
@@ -234,7 +267,8 @@ namespace Client
         private void disconnectBtn_Click(object sender, EventArgs e)
         {
             _network.Disconnect();
-
+            btnSend.Enabled = false;
+            btnFileSend.Enabled = false;
         }
 
     }
