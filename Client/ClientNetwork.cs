@@ -154,7 +154,14 @@ namespace Client
                 case "MSG":
                     if (parts.Length >= 5)
                     {
-                        TextReceived?.Invoke(parts[1], parts[2], parts[3], DateTime.Parse(parts[4]));
+                        if (DateTime.TryParse(parts[4], out DateTime msgTime))
+                        {
+                            TextReceived?.Invoke(parts[1], parts[2], parts[3], msgTime);
+                        }
+                        else
+                        {
+                            TextReceived?.Invoke(parts[1], parts[2], parts[3], DateTime.Now);
+                        }
                     }
                     break;
                 case "FILE":
