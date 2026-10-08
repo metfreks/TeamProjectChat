@@ -245,6 +245,7 @@ namespace Server
                             }
                             Log?.Invoke($"User {user.Name} logged in.");
                             await SendMessageAsync(client, $"SYSTEM|Login successful.");
+                            await SendUserHistoryAsync(client, user.Name!);
                             await BroadcastUserListAsync();
                         }
                         break;
@@ -323,6 +324,28 @@ namespace Server
                 }
             }
             await RefreshUsersList();
+        }
+        private async Task SendUserHistoryAsync(TcpClient client, string username)
+        {
+            using (var db = new ServerDBContext())
+            {
+                var userMessages = await db.Messages
+                    .Where(m => m.Recipients == "ALL" || m.User == username || m.Recipients.Contains(username))
+                    .OrderBy(m => m.Id).ToListAsync();
+
+                foreach (var msg in userMessages)
+                {
+                    if (!string.IsNullOrEmpty(msg.FileName) && msg.FileData != null)
+                    {
+                        string base64 = Convert.ToBase64String(msg.FileData);
+                        await SendMessageAsync(client, $"HISTORY_FILE|{msg.User}|{msg.Recipients}|{msg.FileName}|{base64}");
+                    }
+                    else
+                    {
+                        await SendMessageAsync(client, $"HISTORY_MSG|{msg.User}|{msg.Recipients}|{msg.Text}");
+                    }
+                }
+            }
         }
 
     }

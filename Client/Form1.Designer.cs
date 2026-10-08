@@ -102,6 +102,7 @@
             lbUsers.FormattingEnabled = true;
             lbUsers.Location = new Point(525, 156);
             lbUsers.Name = "lbUsers";
+            lbUsers.SelectionMode = SelectionMode.MultiExtended;
             lbUsers.Size = new Size(344, 184);
             lbUsers.TabIndex = 29;
             // 

@@ -1,3 +1,5 @@
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+
 namespace Client
 {
     public partial class Client : Form
@@ -110,6 +112,10 @@ namespace Client
                 return;
             }
             rtbChat.AppendText($"{Environment.NewLine}{DateTime.Now:HH:mm:ss} {sender} sent the file - {file}");
+            if (sender == _network.Name)
+            {
+                return;
+            }
             var res = MessageBox.Show($"Received {file} from {sender}. Save it to your disk?", "File alert", MessageBoxButtons.YesNo);
             if (res == DialogResult.Yes)
             {
@@ -130,6 +136,7 @@ namespace Client
                 return;
             }
             lbUsers.Items.Clear();
+            lbUsers.Items.Add("ALL");
             foreach (var u in users)
             {
                 if (u != _network.Name)
@@ -174,6 +181,10 @@ namespace Client
 
             foreach (object item in lbUsers.SelectedItems)
             {
+                if ((string)item == "ALL")
+                {
+                    return "ALL";
+                }
                 recipients.Add(item.ToString()!);
             }
 
