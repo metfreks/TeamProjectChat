@@ -263,7 +263,8 @@ namespace Server
                         db.Messages.Add(new MSG { User = sender, Text = text, Recipients = string.IsNullOrEmpty(recipientsStr) ? "ALL" : recipientsStr });
                         await db.SaveChangesAsync();
                         Log?.Invoke($"Message from {sender} to {(string.IsNullOrEmpty(recipientsStr) ? "ALL" : recipientsStr)}: {text}");
-                        await RouteMessage(raw, sender, recipientsStr);
+                        string formattedMessage = $"{raw}|{DateTime.Now:o}";
+                        await RouteMessage(formattedMessage, sender, recipientsStr);
                         break;
                     case "FILE":
                         string fSender = parts[1];
