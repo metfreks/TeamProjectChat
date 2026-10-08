@@ -84,8 +84,16 @@ namespace Server
         {
             if (lbUsers.SelectedItem is User selectedUser)
             {
-                int banTime = int.Parse(tbBan.Text);
-                await _server.BanUser(selectedUser.Id, banTime);
+                if (tbBan.Text != "")
+                {
+                    int banTime = int.Parse(tbBan.Text);
+                    await _server.BanUser(selectedUser.Id, banTime);
+                }
+                else
+                {
+                    int banTime = 60;
+                    await _server.BanUser(selectedUser.Id, banTime);
+                }
             }
             else
             {

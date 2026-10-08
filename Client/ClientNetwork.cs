@@ -16,7 +16,7 @@ namespace Client
         public event Action<string>? ErrorMSG;
         public event Action<string>? SystemMSG;
         public event Action<List<string>>? UsersUpdated;
-        public event Action<string, string, string>? TextReceived;
+        public event Action<string, string, string, DateTime>? TextReceived;
         public event Action<string, string, byte[]>? FileReceived;
 
         public async Task ConnectAsync(string ip, int port)
@@ -152,9 +152,9 @@ namespace Client
                     UsersUpdated?.Invoke(users);
                     break;
                 case "MSG":
-                    if (parts.Length >= 4)
+                    if (parts.Length >= 5)
                     {
-                        TextReceived?.Invoke(parts[1], parts[2], parts[3]);
+                        TextReceived?.Invoke(parts[1], parts[2], parts[3], DateTime.Parse(parts[4]));
                     }
                     break;
                 case "FILE":
@@ -165,9 +165,9 @@ namespace Client
                     }
                     break;
                 case "HISTORY_MSG":
-                    if (parts.Length >= 4)
+                    if (parts.Length >= 5)
                     {
-                        TextReceived?.Invoke(parts[1], parts[2], parts[3]);
+                        TextReceived?.Invoke(parts[1], parts[2], parts[3], DateTime.Parse(parts[4]));
                     }
                     break;
                 case "HISTORY_FILE":

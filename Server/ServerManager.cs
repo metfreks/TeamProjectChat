@@ -270,6 +270,12 @@ namespace Server
                         string fRecipients = parts[2];
                         string fileName = parts[3];
                         var fileBytes = Convert.FromBase64String(parts[4]);
+                        var userBanFile = await db.Users.FirstOrDefaultAsync(u => u.Name == fSender);
+                        if (userBanFile!.IsBanned && userBanFile.Ban > DateTime.Now)
+                        {
+                            await SendMessageAsync(client, $"ERROR|You are banned until: {userBanFile.Ban}");
+                            break;
+                        }
 
                         db.Messages.Add(new MSG { User = fSender, FileName = fileName, FileData = fileBytes, Recipients = string.IsNullOrEmpty(fRecipients) ? "ALL" : fRecipients });
                         await db.SaveChangesAsync();
@@ -339,11 +345,11 @@ namespace Server
                     if (!string.IsNullOrEmpty(msg.FileName) && msg.FileData != null)
                     {
                         string base64 = Convert.ToBase64String(msg.FileData);
-                        await SendMessageAsync(client, $"HISTORY_FILE|{msg.User}|{msg.Recipients}|{msg.FileName}|{base64}");
+                        await SendMessageAsync(client, $"HISTORY_FILE|{msg.User}|{msg.Recipients}|{msg.FileName}|{base64}|{msg.Date}");
                     }
                     else
                     {
-                        await SendMessageAsync(client, $"HISTORY_MSG|{msg.User}|{msg.Recipients}|{msg.Text}");
+                        await SendMessageAsync(client, $"HISTORY_MSG|{msg.User}|{msg.Recipients}|{msg.Text}|{msg.Date}");
                     }
                 }
             }
