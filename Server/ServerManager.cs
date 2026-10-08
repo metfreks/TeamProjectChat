@@ -325,12 +325,13 @@ namespace Server
             }
             await RefreshUsersList();
         }
+
         private async Task SendUserHistoryAsync(TcpClient client, string username)
         {
             using (var db = new ServerDBContext())
             {
                 var userMessages = await db.Messages
-                    .Where(m => m.Recipients == "ALL" || m.User == username || m.Recipients.Contains(username))
+                    .Where(m => m.Recipients == "ALL" || m.User == username || m.Recipients!.Contains(username))
                     .OrderBy(m => m.Id).ToListAsync();
 
                 foreach (var msg in userMessages)

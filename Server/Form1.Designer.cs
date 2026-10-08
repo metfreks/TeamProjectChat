@@ -35,7 +35,6 @@
             tbPort = new TextBox();
             lbUsers = new ListBox();
             approveBtn = new Button();
-            lbActive = new ListBox();
             tbLog = new TextBox();
             label2 = new Label();
             deleteBtn = new Button();
@@ -99,9 +98,9 @@
             // lbUsers
             // 
             lbUsers.FormattingEnabled = true;
-            lbUsers.Location = new Point(50, 187);
+            lbUsers.Location = new Point(50, 87);
             lbUsers.Name = "lbUsers";
-            lbUsers.Size = new Size(316, 104);
+            lbUsers.Size = new Size(316, 204);
             lbUsers.TabIndex = 5;
             // 
             // approveBtn
@@ -115,14 +114,6 @@
             approveBtn.Text = "Approve";
             approveBtn.UseVisualStyleBackColor = true;
             approveBtn.Click += approveBtn_Click;
-            // 
-            // lbActive
-            // 
-            lbActive.FormattingEnabled = true;
-            lbActive.Location = new Point(50, 76);
-            lbActive.Name = "lbActive";
-            lbActive.Size = new Size(316, 104);
-            lbActive.TabIndex = 8;
             // 
             // tbLog
             // 
@@ -165,7 +156,7 @@
             // 
             // refreshBtn
             // 
-            refreshBtn.Location = new Point(21, 187);
+            refreshBtn.Location = new Point(21, 87);
             refreshBtn.Name = "refreshBtn";
             refreshBtn.Size = new Size(23, 27);
             refreshBtn.TabIndex = 13;
@@ -183,7 +174,6 @@
             Controls.Add(deleteBtn);
             Controls.Add(label2);
             Controls.Add(tbLog);
-            Controls.Add(lbActive);
             Controls.Add(approveBtn);
             Controls.Add(lbUsers);
             Controls.Add(tbPort);
@@ -206,7 +196,6 @@
         private TextBox tbPort;
         private ListBox lbUsers;
         private Button approveBtn;
-        private ListBox lbActive;
         private TextBox tbLog;
         private Label label2;
         private Button deleteBtn;
