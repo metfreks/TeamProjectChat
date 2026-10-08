@@ -20,6 +20,7 @@ namespace Server
             approveBtn.Enabled = true;
             deleteBtn.Enabled = true;
             banBtn.Enabled = true;
+            refreshBtn.Enabled = true;
             await _server.StartServer(port);
 
         }
@@ -64,6 +65,7 @@ namespace Server
             approveBtn.Enabled = false;
             deleteBtn.Enabled = false;
             banBtn.Enabled = false;
+            refreshBtn.Enabled = false;
         }
 
         private async void approveBtn_Click(object sender, EventArgs e)

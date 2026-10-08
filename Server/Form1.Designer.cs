@@ -156,6 +156,7 @@
             // 
             // refreshBtn
             // 
+            refreshBtn.Enabled = false;
             refreshBtn.Location = new Point(21, 87);
             refreshBtn.Name = "refreshBtn";
             refreshBtn.Size = new Size(23, 27);

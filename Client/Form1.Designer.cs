@@ -60,6 +60,7 @@
             // 
             // btnFileSend
             // 
+            btnFileSend.Enabled = false;
             btnFileSend.Font = new Font("Segoe UI", 16F);
             btnFileSend.Location = new Point(700, 346);
             btnFileSend.Name = "btnFileSend";
@@ -71,6 +72,7 @@
             // 
             // btnSend
             // 
+            btnSend.Enabled = false;
             btnSend.Font = new Font("Segoe UI", 16F);
             btnSend.Location = new Point(525, 346);
             btnSend.Name = "btnSend";
@@ -82,6 +84,7 @@
             // 
             // tbMsg
             // 
+            tbMsg.Enabled = false;
             tbMsg.Location = new Point(37, 346);
             tbMsg.Multiline = true;
             tbMsg.Name = "tbMsg";
@@ -119,6 +122,7 @@
             // 
             // disconnectBtn
             // 
+            disconnectBtn.Enabled = false;
             disconnectBtn.Font = new Font("Segoe UI", 16F);
             disconnectBtn.Location = new Point(700, 16);
             disconnectBtn.Name = "disconnectBtn";
@@ -164,6 +168,7 @@
             // 
             // loginBtn
             // 
+            loginBtn.Enabled = false;
             loginBtn.Font = new Font("Segoe UI", 16F);
             loginBtn.Location = new Point(525, 89);
             loginBtn.Name = "loginBtn";
@@ -175,6 +180,7 @@
             // 
             // registerBtn
             // 
+            registerBtn.Enabled = false;
             registerBtn.Font = new Font("Segoe UI", 16F);
             registerBtn.Location = new Point(700, 89);
             registerBtn.Name = "registerBtn";

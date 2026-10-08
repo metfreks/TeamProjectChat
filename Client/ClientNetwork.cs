@@ -170,7 +170,6 @@ namespace Client
                         TextReceived?.Invoke(parts[1], parts[2], parts[3]);
                     }
                     break;
-
                 case "HISTORY_FILE":
                     if (parts.Length >= 5)
                     {
